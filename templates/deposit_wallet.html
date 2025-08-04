@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.deposit_wallet or 'Deposit Wallet' }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <!-- Investment Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-6 mb-3">
+                    <div class="card bg-dark border-0">
+                        <div class="card-body text-center p-3">
+                            <small class="text-muted">{{ t.investment_id or 'Investment ID' }}:</small>
+                            <div class="fw-bold text-warning fs-5">#{{ investment.id }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="card bg-dark border-0">
+                        <div class="card-body text-center p-3">
+                            <small class="text-muted">{{ t.amount or 'Amount' }}:</small>
+                            <div class="fw-bold text-warning fs-5">${{ "%.2f"|format(investment.amount) }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card bg-dark border-0">
+                        <div class="card-body text-center p-3">
+                            <small class="text-muted">{{ t.currency or 'Currency' }}:</small>
+                            <div class="fw-bold text-info">{{ wallet.currency }} ({{ wallet.network }})</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card bg-dark border-0">
+                        <div class="card-body text-center p-3">
+                            <small class="text-muted">{{ t.expected_return or 'Expected Return' }}:</small>
+                            <div class="fw-bold text-success">${{ "%.2f"|format(investment.amount * 2) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deposit Wallet -->
+            <div class="card bg-success bg-opacity-10 border border-success">
+                <div class="card-body p-4">
+                    <h5 class="text-success mb-3">
+                        <i class="fas fa-arrow-down me-2"></i>{{ t.send_deposit or 'Send Your Deposit To' }}
+                    </h5>
+                    
+                    <!-- Wallet Address -->
+                    <div class="wallet-container p-3 bg-dark rounded mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-light mb-0">{{ wallet.currency }} {{ t.wallet_address or 'Wallet Address' }}:</h6>
+                            <button class="btn btn-success btn-sm" onclick="copyAddress()" id="copyBtn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="address-box p-3 bg-secondary bg-opacity-25 rounded mb-2">
+                            <code class="text-warning d-block text-break" id="walletAddress">{{ wallet.address }}</code>
+                        </div>
+                        
+                        <small class="text-info">
+                            <i class="fas fa-info-circle me-1"></i>{{ t.network or 'Network' }}: {{ wallet.network }}
+                        </small>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ t.important_instructions or 'Important Instructions' }}
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li>{{ t.send_exact_amount or 'Send exactly' }} <strong>${{ "%.2f"|format(investment.amount) }}</strong> {{ t.to_wallet or 'to the wallet address above' }}</li>
+                            <li>{{ t.use_correct_network or 'Use the correct network' }}: <strong>{{ wallet.network }}</strong></li>
+                            <li>{{ t.after_sending or 'After sending, click the confirmation button below' }}</li>
+                            <li>{{ t.admin_will_confirm or 'Admin will confirm your deposit and start the 7-day timer' }}</li>
+                        </ul>
+                    </div>
+
+                    <!-- Confirmation Section -->
+                    <div class="confirmation-section mt-4">
+                        <div class="text-center mb-3">
+                            <h6 class="text-warning">{{ t.confirm_deposit_sent or 'Have you sent the deposit?' }}</h6>
+                            <p class="text-muted small">{{ t.only_confirm_after_sending or 'Only click confirm after you have sent the exact amount to the wallet address above' }}</p>
+                        </div>
+                        
+                        <div class="d-flex gap-3 justify-content-center">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>{{ t.back_to_dashboard or 'Back to Dashboard' }}
+                            </a>
+                            
+                            <form method="POST" action="{{ url_for('confirm_deposit', investment_id=investment.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('{{ t.confirm_deposit_question or "Are you sure you have sent the deposit? This cannot be undone." }}')">
+                                    <i class="fas fa-check me-2"></i>{{ t.confirm_deposit or 'Confirm Deposit Sent' }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyAddress() {
+    const address = document.getElementById('walletAddress').textContent;
+    const btn = document.getElementById('copyBtn');
+    
+    try {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(address).then(() => {
+                showSuccess(btn);
+            }).catch(() => {
+                fallbackCopy(address, btn);
+            });
+        } else {
+            fallbackCopy(address, btn);
+        }
+    } catch (e) {
+        fallbackCopy(address, btn);
+    }
+}
+
+function fallbackCopy(text, btn) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        showSuccess(btn);
+    } catch (e) {
+        alert('Copy failed. Please copy manually: ' + text);
+    }
+    document.body.removeChild(textarea);
+}
+
+function showSuccess(btn) {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i>';
+    btn.disabled = true;
+    setTimeout(() => {
+        btn.innerHTML = original;
+        btn.disabled = false;
+    }, 1500);
+}
+</script>
+{% endblock %}

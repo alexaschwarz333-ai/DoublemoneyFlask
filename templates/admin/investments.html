@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Management - DoubleMoney Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Admin Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{{ url_for('admin_dashboard') }}">
+                <i class="fas fa-shield-alt me-2"></i>DoubleMoney Admin
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_users') }}">
+                            <i class="fas fa-users me-1"></i>Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_investments') }}">
+                            <i class="fas fa-chart-line me-1"></i>Investments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_wallets') }}">
+                            <i class="fas fa-wallet me-1"></i>Wallets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_referrals') }}">
+                            <i class="fas fa-handshake me-1"></i>Referrals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_settings') }}">
+                            <i class="fas fa-cog me-1"></i>Settings
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Investment Management
+                        </h4>
+                        <div class="d-flex gap-2">
+                            <!-- Status Filter -->
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('admin_investments') }}" 
+                                   class="btn {{ 'btn-primary' if not status_filter else 'btn-outline-primary' }}">
+                                    All
+                                </a>
+                                <a href="{{ url_for('admin_investments', status='pending') }}" 
+                                   class="btn {{ 'btn-warning' if status_filter == 'pending' else 'btn-outline-warning' }}">
+                                    Pending
+                                </a>
+                                <a href="{{ url_for('admin_investments', status='confirmed') }}" 
+                                   class="btn {{ 'btn-info' if status_filter == 'confirmed' else 'btn-outline-info' }}">
+                                    Confirmed
+                                </a>
+                                <a href="{{ url_for('admin_investments', status='completed') }}" 
+                                   class="btn {{ 'btn-success' if status_filter == 'completed' else 'btn-outline-success' }}">
+                                    Completed
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investments Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>User</th>
+                                        <th>Amount</th>
+                                        <th>Currency</th>
+                                        <th>Wallet</th>
+                                        <th>Withdrawal Wallet</th>
+                                        <th>Status</th>
+                                        <th>Timer</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for investment in investments.items %}
+                                    <tr>
+                                        <td>#{{ investment.id }}</td>
+                                        <td>{{ investment.user.phone }}</td>
+                                        <td>
+                                            <strong>${{ "%.2f"|format(investment.amount) }}</strong>
+                                            {% if investment.final_amount %}
+                                                <br><small class="text-success">→ ${{ "%.2f"|format(investment.final_amount) }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ investment.wallet.currency }}</span>
+                                            <small class="d-block">{{ investment.wallet.network }}</small>
+                                        </td>
+                                        <td>
+                                            <code class="small">{{ investment.wallet.address[:20] }}...</code>
+                                        </td>
+                                        <td>
+                                            {% if investment.user.withdrawal_wallet %}
+                                                <code class="small">{{ investment.user.withdrawal_wallet[:20] }}...</code>
+                                            {% else %}
+                                                <span class="text-muted">Not set</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if investment.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% elif investment.status == 'confirmed' %}
+                                                <span class="badge bg-info">Confirmed</span>
+                                            {% elif investment.status == 'completed' or investment.is_completed %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% elif investment.status == 'cancelled' %}
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if investment.status == 'confirmed' and not investment.is_completed %}
+                                                <div class="timer-display small" data-investment-id="{{ investment.id }}">
+                                                    <div class="timer-remaining"></div>
+                                                </div>
+                                            {% elif investment.status == 'confirmed' and investment.completion_date %}
+                                                <small class="text-muted">
+                                                    Ends: {{ investment.completion_date.strftime('%Y-%m-%d %H:%M') }}
+                                                </small>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ investment.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                {% if investment.status == 'pending' %}
+                                                    <!-- Confirm Investment -->
+                                                    <a href="{{ url_for('admin_confirm_investment', investment_id=investment.id) }}" 
+                                                       class="btn btn-sm btn-success"
+                                                       onclick="return confirm('Confirm this investment? Timer will start immediately.')"
+                                                       title="Confirm Investment">
+                                                        <i class="fas fa-check"></i>
+                                                    </a>
+                                                    
+                                                    <!-- Cancel Investment -->
+                                                    <a href="{{ url_for('admin_cancel_investment', investment_id=investment.id) }}" 
+                                                       class="btn btn-sm btn-danger"
+                                                       onclick="return confirm('Cancel this investment? This action cannot be undone.')"
+                                                       title="Cancel Investment">
+                                                        <i class="fas fa-times"></i>
+                                                    </a>
+                                                {% elif investment.status == 'confirmed' %}
+                                                    <span class="badge bg-info">Running</span>
+                                                {% elif investment.is_completed %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if investments.pages > 1 %}
+                    <div class="card-footer">
+                        <nav aria-label="Investments pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                {% if investments.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin_investments', page=investments.prev_num, status=status_filter) }}">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in investments.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != investments.page %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('admin_investments', page=page_num, status=status_filter) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if investments.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin_investments', page=investments.next_num, status=status_filter) }}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+
+    <script>
+    // Initialize timers for confirmed investments
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.timer-display[data-investment-id]').forEach(function(element) {
+            const investmentId = element.getAttribute('data-investment-id');
+            // Initialize admin timer display (simpler version)
+            updateInvestmentTimer(investmentId, element);
+        });
+    });
+
+    function updateInvestmentTimer(investmentId, element) {
+        // Fetch investment status and update timer display
+        fetch(`/api/investment_status/${investmentId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.time_remaining) {
+                    const remaining = data.time_remaining;
+                    element.querySelector('.timer-remaining').textContent = 
+                        `${remaining.days}d ${remaining.hours}h ${remaining.minutes}m`;
+                } else if (data.is_completed) {
+                    element.querySelector('.timer-remaining').innerHTML = 
+                        '<span class="badge bg-success">Completed</span>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching timer:', error);
+            });
+    }
+
+    // Update timers every minute
+    setInterval(function() {
+        document.querySelectorAll('.timer-display[data-investment-id]').forEach(function(element) {
+            const investmentId = element.getAttribute('data-investment-id');
+            updateInvestmentTimer(investmentId, element);
+        });
+    }, 60000);
+    </script>
+</body>
+</html>

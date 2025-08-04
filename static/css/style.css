@@ -1,0 +1,469 @@
+/* DoubleMoney Custom Styles */
+/* Minimal custom CSS that complements Bootstrap dark theme */
+
+:root {
+    --investment-primary: var(--bs-primary);
+    --investment-success: var(--bs-success);
+    --investment-warning: var(--bs-warning);
+    --investment-danger: var(--bs-danger);
+    --investment-info: var(--bs-info);
+}
+
+/* Investment Platform Specific Styles */
+.hero-section {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.investment-card {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.investment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.step-icon {
+    font-size: 1.5rem;
+    font-weight: bold;
+    transition: transform 0.3s ease;
+}
+
+.step-icon:hover {
+    transform: scale(1.1);
+}
+
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: var(--bs-body-bg);
+}
+
+.feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Timer Display Styles */
+.timer-display {
+    font-family: 'Courier New', monospace;
+    background: rgba(var(--bs-dark-rgb), 0.1);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.timer-unit {
+    background: var(--bs-dark);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin: 0.2rem;
+    color: var(--bs-light);
+}
+
+.timer-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--bs-success);
+}
+
+.timer-progress {
+    transition: width 0.3s ease;
+}
+
+/* Currency Selection Styles */
+.currency-option {
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 1rem;
+    background: var(--bs-dark);
+    transition: all 0.3s ease;
+}
+
+.currency-option:hover {
+    border-color: var(--bs-primary);
+    background: var(--bs-primary-subtle);
+}
+
+.currency-option input[type="radio"]:checked + label {
+    color: var(--bs-light);
+}
+
+.currency-option input[type="radio"]:checked {
+    border-color: var(--bs-success);
+    background-color: var(--bs-success);
+}
+
+.currency-option input[type="radio"]:checked ~ .currency-option {
+    border-color: var(--bs-success);
+    background: linear-gradient(135deg, var(--bs-success) 0%, var(--bs-primary) 100%);
+}
+
+.currency-option label {
+    color: var(--bs-light);
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: var(--bs-gray-800);
+    border: 1px solid var(--bs-gray-700);
+    transition: all 0.3s ease;
+}
+
+.currency-option label:hover {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+}
+
+.currency-option input[type="radio"]:checked + label {
+    background: var(--bs-success);
+    border-color: var(--bs-success);
+    color: white;
+    box-shadow: 0 4px 15px rgba(var(--bs-success-rgb), 0.3);
+}
+
+/* Investment Preview Styles */
+.investment-preview {
+    background: var(--bs-dark) !important;
+    border: 2px solid var(--bs-primary);
+    box-shadow: 0 8px 25px rgba(var(--bs-primary-rgb), 0.2);
+}
+
+.investment-preview h6 {
+    color: var(--bs-primary) !important;
+    font-weight: bold;
+}
+
+.investment-preview .investment-amount {
+    font-size: 1.25rem;
+    color: var(--bs-warning) !important;
+}
+
+.investment-preview .final-amount {
+    font-size: 1.25rem;
+    color: var(--bs-success) !important;
+}
+
+.investment-timer-card {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    transition: all 0.3s ease;
+}
+
+.investment-timer-card:hover {
+    border-color: var(--bs-primary);
+    box-shadow: 0 4px 15px rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* Referral System Styles */
+.referral-levels .level {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    margin: 0.3rem 0;
+    border-radius: 5px;
+    background: var(--bs-secondary-bg);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.referral-levels .level.active {
+    opacity: 1;
+    background: var(--bs-success-bg-subtle);
+    border: 1px solid var(--bs-success);
+}
+
+.referral-levels .level-number {
+    background: var(--bs-primary);
+    color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-weight: bold;
+}
+
+.referral-levels .level.active .level-number {
+    background: var(--bs-success);
+}
+
+/* Currency Selection Styles */
+.currency-option {
+    background: var(--bs-body-bg);
+    border: 2px solid var(--bs-border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.currency-option:hover {
+    border-color: var(--bs-primary);
+    background: var(--bs-primary-bg-subtle);
+}
+
+.currency-option input:checked + label {
+    border-color: var(--bs-success);
+    background: var(--bs-success-bg-subtle);
+}
+
+/* Investment Preview */
+.investment-preview {
+    border: 2px dashed var(--bs-border-color);
+    transition: all 0.3s ease;
+}
+
+.investment-preview.show {
+    border-style: solid;
+    border-color: var(--bs-success);
+    background: var(--bs-success-bg-subtle);
+}
+
+/* Admin Panel Specific Styles */
+.admin-stats-card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.admin-stats-card:hover {
+    transform: translateY(-2px);
+}
+
+.wallet-address {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    background: var(--bs-secondary-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 60vh;
+        text-align: center;
+    }
+    
+    .timer-display {
+        font-size: 0.9rem;
+    }
+    
+    .timer-unit {
+        padding: 0.3rem;
+        margin: 0.1rem;
+    }
+    
+    .timer-value {
+        font-size: 1rem;
+    }
+    
+    .investment-card {
+        margin-top: 2rem;
+    }
+    
+    .referral-levels .level {
+        font-size: 0.9rem;
+    }
+    
+    .wallet-address {
+        font-size: 0.8rem;
+        word-break: break-all;
+    }
+}
+
+/* Loading States */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 0.4rem solid var(--bs-secondary);
+    border-top: 0.4rem solid var(--bs-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Status Badges */
+.status-pending { background-color: var(--bs-warning) !important; }
+.status-confirmed { background-color: var(--bs-info) !important; }
+.status-completed { background-color: var(--bs-success) !important; }
+.status-cancelled { background-color: var(--bs-danger) !important; }
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Accessibility Improvements */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Print Styles */
+@media print {
+    .navbar,
+    .btn,
+    .footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Dark Theme Consistency */
+[data-bs-theme="dark"] .investment-card {
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .feature-card {
+    border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .timer-display {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Investment Platform Branding */
+.brand-gradient {
+    background: linear-gradient(45deg, var(--bs-primary), var(--bs-success));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Success States */
+.success-glow {
+    box-shadow: 0 0 20px rgba(var(--bs-success-rgb), 0.3);
+    border-color: var(--bs-success) !important;
+}
+
+/* Error States */
+.error-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Utility Classes */
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.border-gradient {
+    border: 2px solid;
+    border-image: linear-gradient(45deg, var(--bs-primary), var(--bs-success)) 1;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%) !important;
+}
+
+/* Referral Status Styling */
+.referral-status {
+    padding: 1rem;
+    background: rgba(var(--bs-primary-rgb), 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.level-badge .badge {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 25px;
+}
+
+.progress-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-section .progress {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.progress-section .progress-bar {
+    background: linear-gradient(90deg, var(--bs-primary), var(--bs-success));
+    border-radius: 10px;
+    transition: width 0.8s ease-in-out;
+}
+
+.max-level-achieved .alert {
+    background: linear-gradient(135deg, rgba(var(--bs-success-rgb), 0.1), rgba(var(--bs-warning-rgb), 0.1));
+    border: 1px solid rgba(var(--bs-success-rgb), 0.3);
+    color: var(--bs-success);
+}
+
+.max-level-achieved .fa-crown {
+    color: var(--bs-warning);
+    filter: drop-shadow(0 0 10px rgba(var(--bs-warning-rgb), 0.5));
+}
+
+/* Level badges with different colors */
+.level-badge .badge.level-starter { background: var(--bs-secondary); }
+.level-badge .badge.level-bronze { background: #cd7f32; }
+.level-badge .badge.level-silver { background: #c0c0c0; }
+.level-badge .badge.level-gold { background: #ffd700; color: #000; }
+.level-badge .badge.level-platinum { background: #e5e4e2; color: #000; }
+.level-badge .badge.level-diamond { background: linear-gradient(45deg, #b9f2ff, #baffc9); color: #000; }
+
+/* Dark theme adjustments */
+[data-bs-theme="dark"] .referral-status {
+    background: rgba(var(--bs-primary-rgb), 0.15);
+    border-color: rgba(var(--bs-primary-rgb), 0.3);
+}
+
+[data-bs-theme="dark"] .progress-section {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+}

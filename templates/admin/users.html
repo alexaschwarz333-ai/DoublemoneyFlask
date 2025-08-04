@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - DoubleMoney Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Admin Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{{ url_for('admin_dashboard') }}">
+                <i class="fas fa-shield-alt me-2"></i>DoubleMoney Admin
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_users') }}">
+                            <i class="fas fa-users me-1"></i>Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_investments') }}">
+                            <i class="fas fa-chart-line me-1"></i>Investments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_wallets') }}">
+                            <i class="fas fa-wallet me-1"></i>Wallets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_referrals') }}">
+                            <i class="fas fa-handshake me-1"></i>Referrals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_settings') }}">
+                            <i class="fas fa-cog me-1"></i>Settings
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-users me-2"></i>User Management
+                        </h4>
+                        <div class="d-flex gap-2">
+                            <form method="GET" class="d-flex">
+                                <input type="search" name="search" class="form-control me-2" 
+                                       placeholder="Search by phone..." value="{{ search }}">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Phone</th>
+                                        <th>Country</th>
+                                        <th>Referral Code</th>
+                                        <th>Withdrawal Wallet</th>
+                                        <th>Referrals</th>
+                                        <th>Investments</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users.items %}
+                                    <tr>
+                                        <td>#{{ user.id }}</td>
+                                        <td>{{ user.phone }}</td>
+                                        <td>{{ user.country_code }}</td>
+                                        <td>
+                                            <code>{{ user.referral_code }}</code>
+                                        </td>
+                                        <td>
+                                            {% if user.withdrawal_wallet %}
+                                                <div class="d-flex align-items-center">
+                                                    <code class="text-break me-2" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">{{ user.withdrawal_wallet }}</code>
+                                                    <button class="btn btn-sm btn-outline-secondary" onclick="copyWallet('{{ user.withdrawal_wallet }}', this)" title="Copy Wallet">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">Not set</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ user.referrals|length }}</span>
+                                            {% if user.get_active_referrals_count() > 0 %}
+                                                <small class="text-success">({{ user.get_active_referrals_count() }} active)</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ user.investments|length }}</span>
+                                            {% if user.has_active_investment %}
+                                                <small class="text-success">(active)</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <!-- Toggle Status -->
+                                                <a href="{{ url_for('admin_toggle_user_status', user_id=user.id) }}" 
+                                                   class="btn btn-sm {{ 'btn-outline-danger' if user.is_active else 'btn-outline-success' }}"
+                                                   title="{{ 'Deactivate' if user.is_active else 'Activate' }}">
+                                                    <i class="fas {{ 'fa-ban' if user.is_active else 'fa-check' }}"></i>
+                                                </a>
+                                                
+                                                <!-- Reset Password -->
+                                                <button class="btn btn-sm btn-outline-warning" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#resetPasswordModal"
+                                                        data-user-id="{{ user.id }}"
+                                                        data-user-phone="{{ user.phone }}"
+                                                        title="Reset Password">
+                                                    <i class="fas fa-key"></i>
+                                                </button>
+                                                
+                                                <!-- View Details -->
+                                                <button class="btn btn-sm btn-outline-primary" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#userDetailsModal"
+                                                        data-user-id="{{ user.id }}"
+                                                        title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if users.pages > 1 %}
+                    <div class="card-footer">
+                        <nav aria-label="Users pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                {% if users.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin_users', page=users.prev_num, search=search) }}">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in users.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != users.page %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('admin_users', page=page_num, search=search) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if users.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin_users', page=users.next_num, search=search) }}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reset User Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="">
+                    <div class="modal-body">
+                        <p>Reset password for user: <strong id="resetUserPhone"></strong></p>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" 
+                                   minlength="6" required>
+                            <div class="form-text">Minimum 6 characters</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning">Reset Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div class="modal fade" id="userDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">User Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="userDetailsContent">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    
+    <script>
+    // Handle reset password modal
+    document.getElementById('resetPasswordModal').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-user-id');
+        const userPhone = button.getAttribute('data-user-phone');
+        
+        document.getElementById('resetUserPhone').textContent = userPhone;
+        document.querySelector('#resetPasswordModal form').action = `/admin/user/${userId}/reset_password`;
+    });
+
+    // Handle user details modal
+    document.getElementById('userDetailsModal').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-user-id');
+        
+        // Show loading spinner
+        document.getElementById('userDetailsContent').innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+        
+        // Load user details via AJAX
+        fetch(`/admin/user/${userId}/details`)
+            .then(response => response.json())
+            .then(data => {
+                const user = data.user;
+                const investments = data.investments;
+                const referrals = data.referrals;
+                
+                document.getElementById('userDetailsContent').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Information</h6>
+                            <table class="table table-sm">
+                                <tr><td><strong>ID:</strong></td><td>#${user.id}</td></tr>
+                                <tr><td><strong>Phone:</strong></td><td>${user.phone}</td></tr>
+                                <tr><td><strong>Country:</strong></td><td>${user.country_code}</td></tr>
+                                <tr><td><strong>Referral Code:</strong></td><td><code>${user.referral_code}</code></td></tr>
+                                <tr><td><strong>Status:</strong></td><td>${user.is_active ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</td></tr>
+                                <tr><td><strong>Joined:</strong></td><td>${user.created_at}</td></tr>
+                            </table>
+                            
+                            <h6>Withdrawal Wallet</h6>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="withdrawalWallet" value="${user.withdrawal_wallet || 'Not set'}" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyWithdrawalWallet()" ${!user.withdrawal_wallet ? 'disabled' : ''}>
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>Statistics</h6>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Total Investments:</span>
+                                    <span class="badge bg-primary">${investments.length}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Total Referrals:</span>
+                                    <span class="badge bg-info">${referrals.length}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Active Investment:</span>
+                                    <span class="badge ${user.has_active_investment ? 'bg-success' : 'bg-secondary'}">${user.has_active_investment ? 'Yes' : 'No'}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Recent Investments</h6>
+                            ${investments.length > 0 ? `
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${investments.slice(0, 5).map(inv => `
+                                                <tr>
+                                                    <td>#${inv.id}</td>
+                                                    <td>$${inv.amount.toFixed(2)}</td>
+                                                    <td>
+                                                        ${inv.status === 'pending' && !inv.user_confirmed ? '<span class="badge bg-warning">Pending</span>' : ''}
+                                                        ${inv.status === 'pending' && inv.user_confirmed ? '<span class="badge bg-info">Awaiting Admin</span>' : ''}
+                                                        ${inv.status === 'confirmed' ? '<span class="badge bg-success">Active</span>' : ''}
+                                                        ${inv.status === 'completed' ? '<span class="badge bg-success">Completed</span>' : ''}
+                                                        ${inv.status === 'cancelled' ? '<span class="badge bg-danger">Cancelled</span>' : ''}
+                                                    </td>
+                                                    <td>${inv.created_at}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ` : '<p class="text-muted">No investments yet</p>'}
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('userDetailsContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Error loading user details
+                    </div>
+                `;
+            });
+    });
+    
+    // Copy withdrawal wallet function (for modal)
+    function copyWithdrawalWallet() {
+        const walletInput = document.getElementById('withdrawalWallet');
+        const wallet = walletInput.value;
+        
+        if (!wallet || wallet === 'Not set') return;
+        
+        navigator.clipboard.writeText(wallet).then(() => {
+            const btn = walletInput.nextElementSibling;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-secondary');
+            }, 2000);
+        });
+    }
+    
+    // Copy wallet function (for table)
+    function copyWallet(walletAddress, button) {
+        navigator.clipboard.writeText(walletAddress).then(() => {
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalContent;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+            }, 1500);
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = walletAddress;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalContent;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+            }, 1500);
+        });
+    }
+    </script>
+</body>
+</html>

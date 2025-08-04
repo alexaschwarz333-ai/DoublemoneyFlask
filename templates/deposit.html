@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.deposit }} - {{ t.site_title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>{{ t.deposit }}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Investment Plan Info -->
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">{{ t.double_money_plan }}</h5>
+                        <p class="mb-2">✓ Double your investment in exactly 7 days</p>
+                        <p class="mb-2">✓ {{ t.min_deposit }} - {{ t.max_deposit }}</p>
+                        <p class="mb-0">✓ Secure USDC (ERC20) and USDT (TRC20) support</p>
+                    </div>
+
+                    <form method="POST">
+                        <!-- Amount Input -->
+                        <div class="mb-4">
+                            <label for="amount" class="form-label">{{ t.amount }} (USD)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="amount" name="amount" 
+                                       min="100" max="100000" step="0.01" required
+                                       placeholder="Enter amount between $100 - $100,000">
+                            </div>
+                            <div class="form-text">
+                                {{ t.min_deposit }} • {{ t.max_deposit }}
+                            </div>
+                        </div>
+
+                        <!-- Currency Selection -->
+                        <div class="mb-4">
+                            <label for="currency" class="form-label">{{ t.currency }}</label>
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check currency-option">
+                                        <input class="form-check-input" type="radio" name="currency" id="usdc" value="USDC" 
+                                               {{ 'checked' if usdc_available else 'disabled' }} required>
+                                        <label class="form-check-label w-100" for="usdc">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>USDC</strong>
+                                                    <small class="d-block text-muted">ERC20 Network</small>
+                                                </div>
+                                                {% if not usdc_available %}
+                                                    <span class="badge bg-warning">Unavailable</span>
+                                                {% endif %}
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check currency-option">
+                                        <input class="form-check-input" type="radio" name="currency" id="usdt" value="USDT"
+                                               {{ 'checked' if usdt_available and not usdc_available else 'disabled' if not usdt_available else '' }} required>
+                                        <label class="form-check-label w-100" for="usdt">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>USDT</strong>
+                                                    <small class="d-block text-muted">TRC20 Network</small>
+                                                </div>
+                                                {% if not usdt_available %}
+                                                    <span class="badge bg-warning">Unavailable</span>
+                                                {% endif %}
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Withdrawal Wallet -->
+                        <div class="mb-4">
+                            <label for="withdrawal_wallet" class="form-label">{{ t.withdrawal_wallet }}</label>
+                            <input type="text" class="form-control" id="withdrawal_wallet" name="withdrawal_wallet" 
+                                   value="{{ user.withdrawal_wallet or '' }}" required
+                                   placeholder="Enter your wallet address for receiving doubled amount">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle text-primary"></i>
+                                This wallet will receive your doubled investment after 7 days
+                            </div>
+                        </div>
+
+
+
+                        <!-- Terms Agreement -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I understand that my investment will be doubled in 7 days and requires admin confirmation
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100 btn-lg" id="submitBtn">
+                            <i class="fas fa-paper-plane me-2"></i>{{ t.submit }} Investment
+                        </button>
+                    </form>
+
+                    <!-- Process Info -->
+                    <div class="mt-4">
+                        <h6>What happens next?</h6>
+                        <ol class="small text-muted">
+                            <li>You'll receive a unique wallet address for your deposit</li>
+                            <li>Send the exact amount to the provided wallet</li>
+                            <li>Admin will confirm your transaction</li>
+                            <li>Your 7-day timer starts after confirmation</li>
+                            <li>Receive double your investment after 7 days</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('amount');
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const amount = parseFloat(amountInput.value);
+        if (amount < 100 || amount > 100000) {
+            e.preventDefault();
+            showNotification('Amount must be between $100 and $100,000', 'error');
+            return;
+        }
+
+        const currency = document.querySelector('input[name="currency"]:checked');
+        if (!currency) {
+            e.preventDefault();
+            showNotification('Please select a currency', 'error');
+            return;
+        }
+
+        const wallet = document.getElementById('withdrawal_wallet').value.trim();
+        if (!wallet) {
+            e.preventDefault();
+            showNotification('Please enter your withdrawal wallet address', 'error');
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

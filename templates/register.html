@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.register }} - {{ t.site_title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                        <h2>{{ t.register }}</h2>
+                        <p class="text-muted">{{ t.get_started }}</p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="country_code" class="form-label">{{ t.country_code }}</label>
+                                <select class="form-select" id="country_code" name="country_code" required>
+                                    <option value="+1">🇺🇸 +1</option>
+                                    <option value="+44">🇬🇧 +44</option>
+                                    <option value="+49">🇩🇪 +49</option>
+                                    <option value="+33">🇫🇷 +33</option>
+                                    <option value="+34">🇪🇸 +34</option>
+                                    <option value="+39">🇮🇹 +39</option>
+                                    <option value="+351">🇵🇹 +351</option>
+                                    <option value="+7">🇷🇺 +7</option>
+                                    <option value="+86">🇨🇳 +86</option>
+                                    <option value="+81">🇯🇵 +81</option>
+                                    <option value="+82">🇰🇷 +82</option>
+                                    <option value="+966">🇸🇦 +966</option>
+                                    <option value="+91">🇮🇳 +91</option>
+                                    <option value="+90">🇹🇷 +90</option>
+                                    <option value="+31">🇳🇱 +31</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="phone" class="form-label">{{ t.phone_number }}</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required 
+                                       placeholder="1234567890">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">{{ t.password }}</label>
+                            <input type="password" class="form-control" id="password" name="password" required 
+                                   minlength="6">
+                            <div class="form-text">Minimum 6 characters</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">{{ t.confirm_password }}</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="referral_code" class="form-label">{{ t.referral_code }}</label>
+                            <input type="text" class="form-control" id="referral_code" name="referral_code" 
+                                   placeholder="Optional">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>{{ t.register }}
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account? 
+                            <a href="{{ url_for('login') }}" class="text-decoration-none">{{ t.login }}</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Password confirmation validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}

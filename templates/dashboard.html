@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.dashboard }} - {{ t.site_title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- User Info Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-1">{{ t.welcome }}, {{ user.phone }}!</h4>
+                            <p class="mb-0 opacity-75">{{ t.your_referral_code }}: <strong>{{ user.referral_code }}</strong></p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <button class="btn btn-light btn-sm" onclick="copyReferralLink('https://doublemoney.pro/register?ref={{ user.referral_code }}')">
+                                <i class="fas fa-copy me-1"></i>{{ t.copy_referral_link }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">{{ active_investments|length }}</h5>
+                    <p class="card-text text-muted">{{ t.active_investments }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-users fa-2x text-info mb-2"></i>
+                    <h5 class="card-title">{{ active_referrals }}</h5>
+                    <p class="card-text text-muted">{{ t.active_referrals }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-percentage fa-2x text-warning mb-2"></i>
+                    <h5 class="card-title">{{ referral_percentage }}%</h5>
+                    <p class="card-text text-muted">{{ t.referral_percentage }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-dollar-sign fa-2x text-primary mb-2"></i>
+                    <h5 class="card-title">${{ "%.2f"|format(pending_earnings) }}</h5>
+                    <p class="card-text text-muted">{{ t.pending_earnings }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Investments -->
+    {% if active_investments %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ t.active_investments }}</h5>
+                    <a href="{{ url_for('deposit') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>{{ t.deposit }}
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for investment in active_investments %}
+                    <div class="investment-timer-card mb-3 p-3 border rounded" data-investment-id="{{ investment.id }}">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h6 class="mb-1">Investment #{{ investment.id }}</h6>
+                                <span class="badge bg-success">${{ "%.2f"|format(investment.amount) }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="timer-display text-center">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="timer-unit">
+                                                <span class="timer-value" data-unit="days">0</span>
+                                                <small class="d-block">{{ t.days }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="timer-unit">
+                                                <span class="timer-value" data-unit="hours">0</span>
+                                                <small class="d-block">{{ t.hours }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="timer-unit">
+                                                <span class="timer-value" data-unit="minutes">0</span>
+                                                <small class="d-block">{{ t.minutes }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="timer-unit">
+                                                <span class="timer-value" data-unit="seconds">0</span>
+                                                <small class="d-block">{{ t.seconds }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <div class="final-amount">
+                                    <small class="text-muted">{{ t.final_amount }}</small>
+                                    <h6 class="text-success mb-0">${{ "%.2f"|format(investment.amount * 2) }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-success timer-progress" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Investment History -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ t.investment_history }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if investments %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>{{ t.amount }}</th>
+                                    <th>{{ t.status }}</th>
+                                    <th>{{ t.final_amount }}</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for investment in investments %}
+                                <tr>
+                                    <td>#{{ investment.id }}</td>
+                                    <td>${{ "%.2f"|format(investment.amount) }}</td>
+                                    <td>
+                                        {% if investment.status == 'pending' and not investment.user_confirmed %}
+                                            <span class="badge bg-warning">{{ t.pending or 'Pending' }}</span>
+                                        {% elif investment.status == 'pending' and investment.user_confirmed %}
+                                            <span class="badge bg-info">{{ t.awaiting_admin or 'Awaiting Admin Approval' }}</span>
+                                        {% elif investment.status == 'confirmed' %}
+                                            <span class="badge bg-success">{{ t.confirmed or 'Active' }}</span>
+                                        {% elif investment.status == 'completed' %}
+                                            <span class="badge bg-success">{{ t.completed }}</span>
+                                        {% elif investment.status == 'cancelled' %}
+                                            <span class="badge bg-danger">{{ t.cancelled }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if investment.final_amount %}
+                                            <span class="text-success">${{ "%.2f"|format(investment.final_amount) }}</span>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ investment.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h5>No investments yet</h5>
+                        <p class="text-muted">Start your first investment to see it here</p>
+                        <a href="{{ url_for('deposit') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>{{ t.deposit }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Program -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ t.referral_program }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>{{ t.referral_link }}</h6>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" value="{{ referral_link }}" readonly>
+                                <button class="btn btn-outline-secondary" onclick="copyReferralCode('{{ referral_link }}')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            
+                            <h6>Share Your Link</h6>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" value="{{ referral_link }}" readonly>
+                                <button class="btn btn-outline-secondary" onclick="shareReferralLink('{{ referral_link }}')">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="referral-status">
+                                <h6>{{ t.referral_status or 'Referral Status' }}</h6>
+                                
+                                <!-- Current Level Badge -->
+                                <div class="level-badge mb-3">
+                                    <span class="badge level-{{ get_level_name(referral_status.current_level)|lower }} fs-6 px-3 py-2">
+                                        <i class="fas fa-trophy me-2"></i>
+                                        {{ get_level_name(referral_status.current_level) }} Level
+                                        {% if referral_status.current_percentage > 0 %}
+                                            ({{ referral_status.current_percentage }}% earnings)
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                
+                                <!-- Progress to Next Level -->
+                                {% if not referral_status.is_max_level %}
+                                <div class="progress-section">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <small class="text-muted">
+                                            {{ referral_status.active_referrals }} / {{ referral_status.next_required }} active referrals
+                                        </small>
+                                        <small class="text-muted">
+                                            {{ "%.0f"|format(referral_status.progress_percentage) }}%
+                                        </small>
+                                    </div>
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-gradient" 
+                                             role="progressbar" 
+                                             style="width: {{ referral_status.progress_percentage }}%"
+                                             aria-valuenow="{{ referral_status.progress_percentage }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ referral_status.remaining_referrals }} more referrals needed for 
+                                        <strong>{{ get_level_name(referral_status.current_level + 1) }}</strong> 
+                                        ({{ referral_status.next_percentage }}% earnings)
+                                    </small>
+                                </div>
+                                {% else %}
+                                <div class="max-level-achieved">
+                                    <div class="alert alert-success text-center">
+                                        <i class="fas fa-crown fa-2x mb-2"></i>
+                                        <h6 class="mb-1">Maximum Level Achieved!</h6>
+                                        <small>You're earning the highest commission rate</small>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Level Benefits -->
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        {{ get_level_benefits(referral_status.current_level) }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyReferralCode(code) {
+    navigator.clipboard.writeText(code).then(function() {
+        showNotification('Referral code copied!', 'success');
+    });
+}
+
+function copyReferralLink(link) {
+    navigator.clipboard.writeText(link).then(function() {
+        showNotification('Referral link copied!', 'success');
+    }).catch(function() {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = link;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification('Referral link copied!', 'success');
+    });
+}
+
+function shareReferralLink(link) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Join DoubleMoney',
+            text: 'Double your investment in 7 days!',
+            url: link
+        });
+    } else {
+        navigator.clipboard.writeText(link).then(function() {
+            showNotification('Referral link copied!', 'success');
+        });
+    }
+}
+
+// Initialize timers for active investments
+document.addEventListener('DOMContentLoaded', function() {
+    {% for investment in active_investments %}
+    initInvestmentTimer({{ investment.id }});
+    {% endfor %}
+});
+</script>
+{% endblock %}

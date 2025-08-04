@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">{{ t.welcome }}</h1>
+                <p class="lead mb-4">{{ t.tagline }}</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-rocket me-2"></i>{{ t.get_started }}
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>{{ t.login }}
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="investment-card bg-white text-dark p-4 rounded shadow-lg">
+                    <h3 class="text-primary">{{ t.double_money_plan }}</h3>
+                    <div class="display-6 text-success fw-bold">2x</div>
+                    <p class="mb-0">{{ t.min_deposit }} - {{ t.max_deposit }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- How It Works -->
+    <section class="mb-5">
+        <h2 class="text-center mb-5">{{ t.how_it_works }}</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="step-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fw-bold">1</span>
+                    </div>
+                    <h5>{{ t.step_1 }}</h5>
+                    <p class="text-muted">{{ t.step_1_desc }}</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="step-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fw-bold">2</span>
+                    </div>
+                    <h5>{{ t.step_2 }}</h5>
+                    <p class="text-muted">{{ t.step_2_desc }}</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="step-icon bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fw-bold">3</span>
+                    </div>
+                    <h5>{{ t.step_3 }}</h5>
+                    <p class="text-muted">{{ t.step_3_desc }}</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="step-icon bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fw-bold">4</span>
+                    </div>
+                    <h5>{{ t.step_4 }}</h5>
+                    <p class="text-muted">{{ t.step_4_desc }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="mb-5">
+        <h2 class="text-center mb-5">{{ t.features }}</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card text-center p-4 h-100 border rounded">
+                    <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                    <h5>{{ t.secure_platform }}</h5>
+                    <p class="text-muted">Advanced security measures to protect your investments</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card text-center p-4 h-100 border rounded">
+                    <i class="fas fa-bolt fa-3x text-success mb-3"></i>
+                    <h5>{{ t.fast_payouts }}</h5>
+                    <p class="text-muted">Quick and reliable payouts after investment maturity</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card text-center p-4 h-100 border rounded">
+                    <i class="fas fa-users fa-3x text-warning mb-3"></i>
+                    <h5>{{ t.referral_bonuses }}</h5>
+                    <p class="text-muted">Earn up to 25% commission from referrals</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card text-center p-4 h-100 border rounded">
+                    <i class="fas fa-headset fa-3x text-info mb-3"></i>
+                    <h5>{{ t.customer_support }}</h5>
+                    <p class="text-muted">Round-the-clock customer support</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="text-center py-5">
+        <div class="bg-gradient-primary text-white p-5 rounded">
+            <h2 class="mb-4">Ready to Double Your Money?</h2>
+            <p class="lead mb-4">Join thousands of investors who trust DoubleMoney</p>
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">
+                <i class="fas fa-rocket me-2"></i>{{ t.get_started }}
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}
